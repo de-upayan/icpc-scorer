@@ -128,7 +128,7 @@ class ContestWindow extends JFrame
                         @Override
                         public void focusLost(FocusEvent e)
                         {
-                                if (institutionTextField.getText().length() == 0)
+                                if (institutionTextField.getText().equals(""))
                                 {
                                         institutionTextField.setText("MyInstitution");
                                 }
