@@ -42,22 +42,32 @@ class ProblemList
 class Contest
 {
         int score;
-        int numberOfProblems;
+        final int numberOfProblems;
         boolean isContestActive;
-        String teamName;
-        String institution;
+        final String teamName;
+        final String institution;
         Duration timePenalty;
-        Duration contestDuration;
+        final Duration penaltyPerNonAC;
+        final Duration contestDuration;
         ProblemList problems;
         SubmissionList submissions;
 
-        Contest(int numberOfProblems, String teamName, String institution)
+        Contest(
+                int numberOfProblems,
+                String teamName,
+                String institution,
+                Duration penaltyPerNonAC,
+                Duration contestDuration
+        )
         {
                 this.score = 0;
                 this.numberOfProblems = numberOfProblems;
                 this.isContestActive = true;
                 this.teamName = new String(teamName);
                 this.institution = new String(institution);
+                this.timePenalty = Duration.ZERO;
+                this.penaltyPerNonAC = penaltyPerNonAC;
+                this.contestDuration = contestDuration;
                 this.problems = new ProblemList();
                 this.submissions = new SubmissionList();
         }
@@ -85,11 +95,49 @@ class ContestWindow extends JFrame
 
                 JPanel panel = new JPanel();
                 
-                JLabel problemsLabel = new JLabel("Total Problems (A - ?) :");
+                JLabel problemsLabel = new JLabel("Total Problems (A - ?)");
                 JComboBox problemsComboBox = new JComboBox("ABCDEFGHIJKLMOPQRSTUVWXYZ".split(""));
                 problemsComboBox.setEditable(false);
                 
-                JLabel teamNameLabel = new JLabel("Team Name :");
+                JLabel durationLabel = new JLabel("Duration");
+                JPanel durationPanel = new JPanel();
+                
+                /* durationPanel begins */
+                JLabel hoursLabel = new JLabel("Hours");
+                Integer[] hoursComboBoxOptions = new Integer[13];
+                for (int i = 0; i <= 12; i++)
+                {
+                        hoursComboBoxOptions[i] = i;
+                }
+                JComboBox hoursComboBox = new JComboBox(hoursComboBoxOptions);
+                hoursComboBox.setEditable(false);
+                
+                JLabel minutesLabel = new JLabel("Minutes");
+                Integer[] minutesComboBoxOptions = new Integer[12];
+                for (int i = 0; 5 * i < 60; i++)
+                {
+                        minutesComboBoxOptions[i] = 5 * i;
+                }
+                JComboBox minutesComboBox = new JComboBox(minutesComboBoxOptions);
+                minutesComboBox.setEditable(false);
+                
+                durationPanel.add(hoursLabel);
+                durationPanel.add(hoursComboBox);
+                durationPanel.add(minutesLabel);
+                durationPanel.add(minutesComboBox);
+                /* durationPanel ends */
+                
+                JLabel penaltyLabel = new JLabel("Penalty (in minutes)");
+                Integer[] penaltyComboBoxOptions = new Integer[12];
+                for (int i = 0; 5 * i < 60; i++)
+                {
+                        penaltyComboBoxOptions[i] = 5 * i;
+                }
+                JComboBox penaltyComboBox = new JComboBox(penaltyComboBoxOptions);
+                penaltyComboBox.setSelectedItem(penaltyComboBoxOptions[4]);
+                penaltyComboBox.setEditable(false);
+                
+                JLabel teamNameLabel = new JLabel("Team Name");
                 JTextField teamNameTextField = new JTextField("MyTeam", 15);
                 teamNameTextField.addFocusListener(new FocusListener()
                 {
@@ -112,7 +160,7 @@ class ContestWindow extends JFrame
                         }
                 });
                 
-                JLabel InstitutionLabel = new JLabel("Institution Name :");
+                JLabel InstitutionLabel = new JLabel("Institution Name");
                 JTextField institutionTextField = new JTextField("MyInstitution", 15);
                 institutionTextField.addFocusListener(new FocusListener()
                 {
@@ -135,9 +183,13 @@ class ContestWindow extends JFrame
                         }
                 });
                 
-                panel.setLayout(new GridLayout(3, 2));
+                panel.setLayout(new GridLayout(5, 2));
                 panel.add(problemsLabel);
                 panel.add(problemsComboBox);
+                panel.add(durationLabel);
+                panel.add(durationPanel);
+                panel.add(penaltyLabel);
+                panel.add(penaltyComboBox);
                 panel.add(teamNameLabel);
                 panel.add(teamNameTextField);
                 panel.add(InstitutionLabel);
@@ -154,8 +206,12 @@ class ContestWindow extends JFrame
                         int numberOfProblems = ((String) problemsComboBox.getSelectedItem()).charAt(0) - 'A' + 1;
                         String teamName = teamNameTextField.getText();
                         String institution = institutionTextField.getText();
+                        Duration penaltyPerNonAC = Duration.parse("PT" + penaltyComboBox.getSelectedItem() + "M");
+                        Duration contestDuration = Duration.parse(
+                                "PT" + hoursComboBox.getSelectedItem() + "H" + minutesComboBox.getSelectedItem() + "M"
+                        );
                         
-                        newContest = new Contest(numberOfProblems, teamName, institution);
+                        newContest = new Contest(numberOfProblems, teamName, institution, penaltyPerNonAC, contestDuration);
                 }
                 else
                 {
