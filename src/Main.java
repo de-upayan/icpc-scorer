@@ -313,7 +313,7 @@ class ContestWindow extends JFrame
                         
                         symbolLabel = new JLabel(problem.problemSymbol);
                         symbolLabel.setHorizontalAlignment(JLabel.CENTER);
-                        changeFont(symbolLabel, symbolLabel.getFont().deriveFont(Font.BOLD, 20));
+                        changeFont(symbolLabel, symbolLabel.getFont().deriveFont(Font.BOLD, 24));
                         
                         scoreLabel = new JLabel("-");
                         scoreLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -364,7 +364,7 @@ class ContestWindow extends JFrame
                         /* teamDetailsPanel begins */
                         teamNameLabel = new JLabel(contest.teamName);
                         teamNameLabel.setHorizontalAlignment(JLabel.CENTER);
-                        changeFont(teamNameLabel, teamNameLabel.getFont().deriveFont(Font.BOLD, 15));
+                        changeFont(teamNameLabel, teamNameLabel.getFont().deriveFont(Font.BOLD, 18));
                         teamDetailsPanel.add(teamNameLabel);
 
                         
@@ -388,6 +388,7 @@ class ContestWindow extends JFrame
                         scorePanel.add(timePenaltyLabel);
                         /* scorePanel ends */
                         scorePanel.setBorder(new EmptyBorder(10, 5, 10, 5));
+                        changeFont(scorePanel, scorePanel.getFont().deriveFont(Font.BOLD, 16));
                         add(scorePanel);
                         
                         problemList = new ProblemGUIEntity[contest.numberOfProblems];
@@ -499,7 +500,7 @@ class ContestWindow extends JFrame
                         headerPanel.add(label);
                         /* headerPanel ends */
                         
-                        changeFont(headerPanel, headerPanel.getFont().deriveFont(Font.BOLD, 15));
+                        changeFont(headerPanel, headerPanel.getFont().deriveFont(Font.BOLD, 16));
                         add(headerPanel);
                 }
                 
@@ -670,6 +671,17 @@ public class Main
 {
         public static void main(String args[])
         {
+                Font myFont = new Font("Verdana", Font.PLAIN, 15);
+                UIDefaults defaultUI = UIManager.getDefaults();
+                defaultUI.put("Button.font", myFont);
+                defaultUI.put("Label.font", myFont);
+                defaultUI.put("Panel.font", myFont);
+                defaultUI.put("ComboBox.font", myFont);
+                defaultUI.put("TextField.font", myFont);
+                defaultUI.put("OptionPane.font", myFont);
+                defaultUI.put("ScrollPane.font", myFont);
+                defaultUI.put("TitledBorder.font", myFont);
+                
                 ContestWindow cwin = new ContestWindow();
                 return;
         }
