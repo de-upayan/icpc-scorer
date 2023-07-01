@@ -1,3 +1,7 @@
+/*
+        author: Upayan De (de-upayan)
+*/
+
 import java.awt.*;
 import java.util.*;
 import java.lang.*;
@@ -83,6 +87,7 @@ class Contest
                 this.timePenalty = Duration.ZERO;
                 this.penaltyPerNonAC = penaltyPerNonAC;
                 this.contestDuration = contestDuration;
+                //this.contestDuration = Duration.parse("PT20S"); // For testing the timer
                 this.startTime = Instant.now();
                 
                 this.problems = new Problem[numberOfProblems];
@@ -280,6 +285,15 @@ class ContestWindow extends JFrame
                 setVisible(true);
         }
         
+        void endContest()
+        {
+                contest.isContestActive = false;
+                
+                bottomPanel.recordButton.setEnabled(false);
+                bottomPanel.endContestButton.setEnabled(false);
+                topPanel.timerPanel.timerThread.stop();
+        }
+        
         private class ProblemGUIEntity extends JPanel
         {
                 final Problem problem;
@@ -384,14 +398,52 @@ class ContestWindow extends JFrame
                 }
         }
         
-        private class TimerPanel extends JPanel
+        private class TimerPanel extends JPanel implements Runnable
         {
+                Thread timerThread;
+                JLabel timerLabel;
+                Duration currentRemaining;
                 
+                TimerPanel()
+                {                        
+                        currentRemaining = contest.contestDuration;
+                        
+                        timerLabel = new JLabel(formatDuration(currentRemaining));
+                        timerLabel.setBorder(BorderFactory.createTitledBorder("Time Remaining"));
+                        timerLabel.setHorizontalAlignment(JLabel.CENTER);
+                        timerLabel.setPreferredSize(new Dimension(290, 120));
+                        changeFont(timerLabel, timerLabel.getFont().deriveFont(Font.BOLD, 35));
+                        add(timerLabel, BorderLayout.CENTER);
+                        
+                        timerThread = new Thread(this);
+                        timerThread.start();
+                }
+                
+                @Override
+                public void run()
+                {
+                        while (true)
+                        {
+                                currentRemaining = contest.contestDuration.minus(
+                                        Duration.between(contest.startTime, Instant.now())
+                                );
+                                
+                                if (currentRemaining.isZero() || currentRemaining.isNegative())
+                                {
+                                        break;
+                                }
+                                
+                                timerLabel.setText(formatDuration(currentRemaining));
+                        }
+                        
+                        endContest();
+                }              
         }
         
         private class TopPanel extends JPanel
         {
                 ScorecardPanel scorecardPanel;
+                TimerPanel timerPanel;
                 JScrollPane scorecardPanelScrollPane;
                 
                 TopPanel()
@@ -406,7 +458,7 @@ class ContestWindow extends JFrame
                         scorecardPanelScrollPane.setBorder(new EtchedBorder());
                         add(scorecardPanelScrollPane, BorderLayout.WEST);
                         
-                        add(new TimerPanel(), BorderLayout.EAST);
+                        add(timerPanel = new TimerPanel(), BorderLayout.EAST);
                 }
         }
         
@@ -471,6 +523,7 @@ class ContestWindow extends JFrame
                         add(recordButton);
                         
                         endContestButton = new JButton("End Contest");
+                        endContestButton.addActionListener(new EndContestButtonListener());
                         add(endContestButton);
                 }
                 
@@ -520,6 +573,25 @@ class ContestWindow extends JFrame
                                 }
                                 
                                 topPanel.scorecardPanel.problemList[problemID].update();
+                        }
+                }
+                
+                private class EndContestButtonListener implements ActionListener
+                {
+                        @Override
+                        public void actionPerformed(ActionEvent event)
+                        {
+                                int confirmation = JOptionPane.showConfirmDialog(
+                                        null,
+                                        "Do you really wish to end the contest?",
+                                        "End Contest?",
+                                        JOptionPane.YES_NO_OPTION
+                                );
+                                
+                                if (confirmation == JOptionPane.YES_OPTION)
+                                {
+                                        endContest();
+                                }
                         }
                 }
         }
