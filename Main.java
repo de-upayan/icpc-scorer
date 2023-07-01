@@ -19,8 +19,17 @@ class Submission
 {
         int submissionID;
         int problemID;
+        static int lastSubmissionID = 0;
         Verdict verdict;
         Instant submissionTime;
+        
+        Submission(int problemID, Verdict verdict, Instant submissionTime)
+        {
+                this.submissionID = ++lastSubmissionID;
+                this.problemID = problemID;
+                this.verdict = verdict;
+                this.submissionTime = submissionTime;
+        }
 }
 
 class Problem
@@ -89,6 +98,9 @@ class Contest
 class ContestWindow extends JFrame
 {
         Contest contest;
+        TopPanel topPanel;
+        MidPanel midPanel;
+        BottomPanel bottomPanel;
         
         // source: https://stackoverflow.com/a/12731354
         public static void changeFont(Component component, Font font)
@@ -258,9 +270,9 @@ class ContestWindow extends JFrame
                 
                 setLayout(new BorderLayout());
                 
-                add(new TopPanel(), BorderLayout.NORTH);
-                add(new SubmissionPanel(), BorderLayout.CENTER);
-                add(new BottomPanel(), BorderLayout.SOUTH);
+                add(topPanel = new TopPanel(), BorderLayout.NORTH);
+                add(midPanel = new MidPanel(), BorderLayout.CENTER);
+                add(bottomPanel = new BottomPanel(), BorderLayout.SOUTH);
 
                 setSize(960, 540);
                 setResizable(false);
@@ -364,6 +376,12 @@ class ContestWindow extends JFrame
                                 add(problemList[i]);
                         }
                 }
+                
+                void updateScore()
+                {
+                        scoreLabel.setText(Integer.toString(contest.score));
+                        timePenaltyLabel.setText(formatDuration(contest.timePenalty));
+                }
         }
         
         private class TimerPanel extends JPanel
@@ -373,6 +391,7 @@ class ContestWindow extends JFrame
         
         private class TopPanel extends JPanel
         {
+                ScorecardPanel scorecardPanel;
                 JScrollPane scorecardPanelScrollPane;
                 
                 TopPanel()
@@ -380,7 +399,7 @@ class ContestWindow extends JFrame
                         setLayout(new BorderLayout());
                         setBorder(new EmptyBorder(10, 10, 5, 5));
                         
-                        scorecardPanelScrollPane = new JScrollPane(new ScorecardPanel());
+                        scorecardPanelScrollPane = new JScrollPane(scorecardPanel = new ScorecardPanel());
                         scorecardPanelScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);  
                         scorecardPanelScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
                         scorecardPanelScrollPane.setPreferredSize(new Dimension(640, 120));
@@ -391,24 +410,118 @@ class ContestWindow extends JFrame
                 }
         }
         
-        private class SubmissionPanel extends JPanel
-        {
-                
-        }
-        
-        private class InputPanel extends JPanel
-        {
-                
-        }
-        
-        private class ButtonPanel extends JPanel
+        private class MidPanel extends JPanel
         {
                 
         }
         
         private class BottomPanel extends JPanel
         {
+                JLabel problemLabel, verdictLabel;
+                JComboBox problemComboBox, verdictComboBox;
+                JButton recordButton, endContestButton;
                 
+                BottomPanel()
+                {
+                        setLayout(new GridLayout(1, 4));
+                        setPreferredSize(new Dimension(960, 50));
+                        
+                        JPanel problemPanel = new JPanel();
+                        /* problemPanel begins */
+                        problemPanel.setLayout(new GridLayout(1, 2));
+                        
+                        problemLabel = new JLabel("Problem");
+                        problemLabel.setBorder(new EmptyBorder(10, 10, 10, 5));
+                        problemLabel.setHorizontalAlignment(JLabel.CENTER);
+                        problemPanel.add(problemLabel);
+                        
+                        problemComboBox = new JComboBox(
+                                "ABCDEFGHIJKLMOPQRSTUVWXYZ".substring(0, contest.numberOfProblems).split("")
+                        );
+                        problemComboBox.setBorder(new EmptyBorder(10, 5, 10, 5));
+                        problemComboBox.setEditable(false);
+                        problemPanel.add(problemComboBox);
+                        /* problemPanel ends */
+                        add(problemPanel);
+                        
+                        JPanel verdictPanel = new JPanel();
+                        /* verdictPanel begins */
+                        verdictPanel.setLayout(new GridLayout(1, 2));
+                        
+                        verdictLabel = new JLabel("Verdict");
+                        verdictLabel.setHorizontalAlignment(JLabel.CENTER);
+                        verdictLabel.setBorder(new EmptyBorder(10, 5, 10, 5));
+                        verdictPanel.add(verdictLabel);
+                        
+                        verdictComboBox = new JComboBox(new Verdict[] {
+                                Verdict.AC,
+                                Verdict.WA,
+                                Verdict.TLE,
+                                Verdict.MLE,
+                                Verdict.PE
+                        });
+                        verdictComboBox.setBorder(new EmptyBorder(10, 5, 10, 10));
+                        verdictComboBox.setEditable(false);
+                        verdictPanel.add(verdictComboBox);
+                        /* verdictPanel ends */
+                        add(verdictPanel);
+                        
+                        recordButton = new JButton("Record Submission");
+                        recordButton.addActionListener(new RecordButtonListener());
+                        add(recordButton);
+                        
+                        endContestButton = new JButton("End Contest");
+                        add(endContestButton);
+                }
+                
+                private class RecordButtonListener implements ActionListener
+                {
+                        @Override
+                        public void actionPerformed(ActionEvent event)
+                        {
+                                int problemID;
+                                Verdict verdict;
+                                
+                                problemID = ((String) problemComboBox.getSelectedItem()).charAt(0) - 'A';
+                                verdict = (Verdict) verdictComboBox.getSelectedItem();
+                                
+                                Submission newSubmission = new Submission(
+                                        problemID,
+                                        verdict,
+                                        Instant.now()
+                                );
+                                contest.submissions.add(newSubmission);
+                                
+                                // Update MidPanel
+                                
+                                if (contest.problems[problemID].isSolved)
+                                {
+                                        return;
+                                }
+                                
+                                contest.problems[problemID].numberOfAttempts++;
+                                
+                                if (verdict == Verdict.AC)
+                                {
+                                        contest.problems[problemID].isSolved = true;
+                                        contest.problems[problemID].solveTime = newSubmission.submissionTime;
+                                        
+                                        contest.score++;
+                                        
+                                        contest.timePenalty = contest.timePenalty.plus(
+                                                Duration.between(contest.startTime, newSubmission.submissionTime)
+                                        );
+                                        for (int i = 0; i < contest.problems[problemID].numberOfAttempts - 1; i++)
+                                        {
+                                                contest.timePenalty = contest.timePenalty.plus(contest.penaltyPerNonAC);
+                                        }
+                                        
+                                        topPanel.scorecardPanel.updateScore();
+                                }
+                                
+                                topPanel.scorecardPanel.problemList[problemID].update();
+                        }
+                }
         }
 }
 
@@ -416,7 +529,7 @@ public class Main
 {
         public static void main(String args[])
         {
-                ContestWindow app = new ContestWindow();
+                ContestWindow cwin = new ContestWindow();
                 return;
         }
 }
