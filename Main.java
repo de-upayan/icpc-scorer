@@ -105,6 +105,7 @@ class ContestWindow extends JFrame
         Contest contest;
         TopPanel topPanel;
         MidPanel midPanel;
+        JScrollPane midPanelScrollPane;
         BottomPanel bottomPanel;
         
         // source: https://stackoverflow.com/a/12731354
@@ -142,7 +143,7 @@ class ContestWindow extends JFrame
                 
                 JLabel problemsLabel = new JLabel("Total Problems (A - ?)");
                 JComboBox problemsComboBox = new JComboBox("ABCDEFGHIJKLMOPQRSTUVWXYZ".split(""));
-                problemsComboBox.setSelectedIndex(4);
+                problemsComboBox.setSelectedIndex(5);
                 problemsComboBox.setEditable(false);
                 
                 JLabel durationLabel = new JLabel("Duration");
@@ -276,7 +277,13 @@ class ContestWindow extends JFrame
                 setLayout(new BorderLayout());
                 
                 add(topPanel = new TopPanel(), BorderLayout.NORTH);
-                add(midPanel = new MidPanel(), BorderLayout.CENTER);
+                
+                midPanelScrollPane = new JScrollPane(midPanel = new MidPanel());
+                midPanelScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);  
+                midPanelScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                midPanelScrollPane.setBorder(new EtchedBorder());
+                add(midPanelScrollPane, BorderLayout.CENTER);                
+                
                 add(bottomPanel = new BottomPanel(), BorderLayout.SOUTH);
 
                 setSize(960, 540);
@@ -463,8 +470,68 @@ class ContestWindow extends JFrame
         }
         
         private class MidPanel extends JPanel
-        {
+        {                
+                MidPanel()
+                {
+                        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); 
+                                        
+                        JPanel headerPanel = new JPanel();
+                        headerPanel.setPreferredSize(new Dimension(950, 75));
+                        headerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+                        headerPanel.setLayout(new GridLayout(1, 4));
+                        /* headerPanel begins */
+                        JLabel label;
+                        
+                        label = new JLabel("Submission ID");
+                        label.setHorizontalAlignment(JLabel.CENTER);
+                        headerPanel.add(label);
+                        
+                        label = new JLabel("Submission Time");
+                        label.setHorizontalAlignment(JLabel.CENTER);
+                        headerPanel.add(label);
+                        
+                        label = new JLabel("Problem");
+                        label.setHorizontalAlignment(JLabel.CENTER);
+                        headerPanel.add(label);
+                        
+                        label = new JLabel("Verdict");
+                        label.setHorizontalAlignment(JLabel.CENTER);
+                        headerPanel.add(label);
+                        /* headerPanel ends */
+                        
+                        changeFont(headerPanel, headerPanel.getFont().deriveFont(Font.BOLD, 15));
+                        add(headerPanel);
+                }
                 
+                void addSubmissionRecord(Submission newSubmission)
+                {
+                        JPanel panel = new JPanel();
+                        panel.setPreferredSize(new Dimension(950, 75));
+                        panel.setLayout(new GridLayout(1, 4));
+                        /* headerPanel begins */
+                        JLabel label;
+                        
+                        label = new JLabel("" + newSubmission.submissionID);
+                        label.setHorizontalAlignment(JLabel.CENTER);
+                        panel.add(label);
+                        
+                        label = new JLabel(formatDuration(
+                                Duration.between(contest.startTime, newSubmission.submissionTime)
+                        ));
+                        label.setHorizontalAlignment(JLabel.CENTER);
+                        panel.add(label);
+                        
+                        label = new JLabel(Character.toString('A' + newSubmission.problemID));
+                        label.setHorizontalAlignment(JLabel.CENTER);
+                        panel.add(label);
+                        
+                        label = new JLabel(newSubmission.verdict.toString());
+                        label.setHorizontalAlignment(JLabel.CENTER);
+                        panel.add(label);
+                        /* headerPanel ends */
+                        
+                        add(panel);
+                }
         }
         
         private class BottomPanel extends JPanel
@@ -543,7 +610,9 @@ class ContestWindow extends JFrame
                                         verdict,
                                         Instant.now()
                                 );
+                                
                                 contest.submissions.add(newSubmission);
+                                midPanel.addSubmissionRecord(newSubmission);
                                 
                                 // Update MidPanel
                                 
