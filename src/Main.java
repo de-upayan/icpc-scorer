@@ -44,7 +44,7 @@ class Problem
         boolean isSolved;
         Instant solveTime;
         
-        Problem (
+        Problem(
                 int problemID,
                 String problemSymbol
         )
@@ -295,10 +295,8 @@ class ContestWindow extends JFrame
         void endContest()
         {
                 contest.isContestActive = false;
-                
                 bottomPanel.recordButton.setEnabled(false);
                 bottomPanel.endContestButton.setEnabled(false);
-                topPanel.timerPanel.timerThread.stop();
         }
         
         private class ProblemGUIEntity extends JPanel
@@ -430,7 +428,7 @@ class ContestWindow extends JFrame
                 @Override
                 public void run()
                 {
-                        while (true)
+                        while (contest.isContestActive)
                         {
                                 currentRemaining = contest.contestDuration.minus(
                                         Duration.between(contest.startTime, Instant.now())
@@ -438,13 +436,12 @@ class ContestWindow extends JFrame
                                 
                                 if (currentRemaining.isZero() || currentRemaining.isNegative())
                                 {
+                                        endContest();
                                         break;
                                 }
                                 
                                 timerLabel.setText(formatDuration(currentRemaining));
                         }
-                        
-                        endContest();
                 }              
         }
         
@@ -672,6 +669,7 @@ public class Main
         public static void main(String args[])
         {
                 Font myFont = new Font("Verdana", Font.PLAIN, 15);
+                
                 UIDefaults defaultUI = UIManager.getDefaults();
                 defaultUI.put("Button.font", myFont);
                 defaultUI.put("Label.font", myFont);
