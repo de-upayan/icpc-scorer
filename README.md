@@ -24,7 +24,7 @@ This is a GUI Application built using Java Swing that can be used to manually re
 
 ### Installing
 
-* Download the [latest release](https://github.com/de-upayan/icpc-scorer/releases/tag/v0.1) (v0.1) and save them anywhere on your local machine
+* Download the [latest release](https://github.com/de-upayan/icpc-scorer/releases/tag/v0.1) (v0.1) files and save them anywhere on your local machine
 
 ### Executing program
 
