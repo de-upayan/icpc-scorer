@@ -93,7 +93,7 @@ class Contest
                 this.problems = new Problem[numberOfProblems];
                 for (int i = 0; i < numberOfProblems; i++)
                 {
-                        problems[i] = new Problem(i, Character.toString('A' + i));
+                        problems[i] = new Problem(i, String.valueOf((char) ('A' + i)));
                 }
                 
                 this.submissions = new ArrayList < Submission > ();
@@ -377,7 +377,7 @@ class ContestWindow extends JFrame
                         scorePanel = new JPanel();
                         scorePanel.setLayout(new GridLayout(2, 1));
                         /* scorePanel begins */
-                        scoreLabel = new JLabel(Integer.toString(contest.score));
+                        scoreLabel = new JLabel(String.valueOf(contest.score));
                         scoreLabel.setHorizontalAlignment(JLabel.CENTER);
                         scorePanel.add(scoreLabel);
                         
@@ -399,7 +399,7 @@ class ContestWindow extends JFrame
                 
                 void updateScore()
                 {
-                        scoreLabel.setText(Integer.toString(contest.score));
+                        scoreLabel.setText(String.valueOf(contest.score));
                         timePenaltyLabel.setText(formatDuration(contest.timePenalty));
                 }
         }
@@ -519,7 +519,7 @@ class ContestWindow extends JFrame
                         label.setHorizontalAlignment(JLabel.CENTER);
                         panel.add(label);
                         
-                        label = new JLabel(Character.toString('A' + newSubmission.problemID));
+                        label = new JLabel(String.valueOf((char) ('A' + newSubmission.problemID)));
                         label.setHorizontalAlignment(JLabel.CENTER);
                         panel.add(label);
                         
@@ -527,6 +527,11 @@ class ContestWindow extends JFrame
                         label.setHorizontalAlignment(JLabel.CENTER);
                         panel.add(label);
                         /* headerPanel ends */
+                        
+                        if (! contest.problems[newSubmission.problemID].isSolved && newSubmission.verdict == Verdict.AC)
+                        {
+                                changeFont(panel, panel.getFont().deriveFont(Font.BOLD, 15));
+                        }
                         
                         add(panel);
                 }
