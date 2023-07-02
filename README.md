@@ -2,6 +2,7 @@
 
 A GUI application for manually timing and scoring ICPC-style practice contests.
 
+
 ## Description
 
 This is a GUI Application built using Java Swing that can be used to manually record submissions and automatically evaluate ICPC-style time penalty. The interface provides multiple panels including a real-time contest timer, an ICPC-style dynamic scorecard and a submission history tracker.
@@ -23,17 +24,22 @@ This is a GUI Application built using Java Swing that can be used to manually re
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+* Download the [latest release](https://github.com/de-upayan/icpc-scorer/releases/tag/v0.1) (v0.1) and save them anywhere on your local machine
 
 ### Executing program
 
-* How to run the program
-* Step-by-step bullets
-  
+* Double-click on the file 'icpc-scorer.jar' and the program should launch
+
+##### Command line
+
+* Open a terminal window in the directory containing 'icpc-scorer.jar'
+* Run the command `java -jar icpc-scorer.jar`
+
+
 ## Authors
 
 [Upayan De](https://upayande.ml/)
+
 
 ## Version History
 
