@@ -243,27 +243,55 @@ class ContestWindow extends JFrame
                 panel.add(InstitutionLabel);
                 panel.add(institutionTextField);
 
-                int result = JOptionPane.showConfirmDialog(
-                        this,
-                        panel,
-                        "Start New Contest",
-                        JOptionPane.OK_CANCEL_OPTION
-                );
-                if (result == JOptionPane.OK_OPTION)
+                boolean isDurationError = true;
+                while (isDurationError) 
                 {
-                        int numberOfProblems = ((String) problemsComboBox.getSelectedItem()).charAt(0) - 'A' + 1;
-                        String teamName = teamNameTextField.getText();
-                        String institution = institutionTextField.getText();
-                        Duration penaltyPerNonAC = Duration.parse("PT" + penaltyComboBox.getSelectedItem() + "M");
-                        Duration contestDuration = Duration.parse(
-                                "PT" + hoursComboBox.getSelectedItem() + "H" + minutesComboBox.getSelectedItem() + "M"
-                        );
-                        
-                        newContest = new Contest(numberOfProblems, teamName, institution, penaltyPerNonAC, contestDuration);
-                }
-                else
-                {
-                        System.exit(0);
+                        int result = JOptionPane.showConfirmDialog(
+                                        null,
+                                        panel,
+                                        "Start New Contest",
+                                        JOptionPane.OK_CANCEL_OPTION);
+                        if (result == JOptionPane.OK_OPTION) 
+                        {
+                                int numberOfProblems = ((String) problemsComboBox.getSelectedItem()).charAt(0) - 'A'
+                                                + 1;
+                                String teamName = teamNameTextField.getText();
+                                String institution = institutionTextField.getText();
+                                Duration penaltyPerNonAC = Duration
+                                                .parse("PT" + penaltyComboBox.getSelectedItem() + "M");
+                                Duration contestDuration = Duration.parse(
+                                                "PT" + hoursComboBox.getSelectedItem() + "H"
+                                                                + minutesComboBox.getSelectedItem()
+                                                                + "M");
+
+                                System.out.println(hoursComboBox.getSelectedItem().getClass());
+                                System.out.println(hoursComboBox.getSelectedIndex() == 0);
+                                isDurationError = hoursComboBox.getSelectedIndex() == 0
+                                                && minutesComboBox.getSelectedIndex() == 0;
+                                if (isDurationError) 
+                                {
+                                        int res = JOptionPane.showConfirmDialog(
+                                                        null,
+                                                        "Duration can't be 00 : 00 : 00",
+                                                        "Duratin Error",
+                                                        JOptionPane.OK_CANCEL_OPTION);
+
+                                        if (res != JOptionPane.OK_OPTION) {
+                                                System.exit(0);
+                                        }
+                                }
+
+                                if (!isDurationError) 
+                                {
+                                        newContest = new Contest(numberOfProblems, teamName, institution,
+                                                        penaltyPerNonAC,
+                                                        contestDuration);
+                                }
+                        } 
+                        else 
+                        {
+                                System.exit(0);
+                        }
                 }
 
                 return newContest;
