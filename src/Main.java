@@ -280,8 +280,7 @@ class ContestWindow extends JFrame
                                                 System.exit(0);
                                         }
                                 }
-
-                                if (!isDurationError) 
+                                else
                                 {
                                         newContest = new Contest(numberOfProblems, teamName, institution,
                                                         penaltyPerNonAC,
