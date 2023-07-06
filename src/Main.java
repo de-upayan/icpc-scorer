@@ -161,10 +161,10 @@ class ContestWindow extends JFrame
                 hoursComboBox.setEditable(false);
                 
                 JLabel minutesLabel = new JLabel("Minutes");
-                Integer[] minutesComboBoxOptions = new Integer[12];
+                Vector < Integer > minutesComboBoxOptions = new Vector < Integer > ();
                 for (int i = 0; 5 * i < 60; i++)
                 {
-                        minutesComboBoxOptions[i] = 5 * i;
+                        minutesComboBoxOptions.add(5 * i);
                 }
                 JComboBox minutesComboBox = new JComboBox(minutesComboBoxOptions);
                 minutesComboBox.setEditable(false);
@@ -173,6 +173,26 @@ class ContestWindow extends JFrame
                 durationPanel.add(hoursComboBox);
                 durationPanel.add(minutesLabel);
                 durationPanel.add(minutesComboBox);
+                
+                hoursComboBox.addItemListener(new ItemListener()
+                {
+                        @Override
+                        public void itemStateChanged(ItemEvent event)
+                        {
+                                if ((Integer) event.getItem() == 0)
+                                {
+                                        if (event.getStateChange() == ItemEvent.SELECTED)
+                                        {
+                                                minutesComboBox.removeItemAt(0);
+                                        }
+                                        else
+                                        {
+                                                minutesComboBox.insertItemAt(0, 0);
+                                        }
+                                }
+                        }
+                });
+                
                 /* durationPanel ends */
                 
                 JLabel penaltyLabel = new JLabel("Penalty (in minutes)");
@@ -303,7 +323,6 @@ class ContestWindow extends JFrame
         {
                 final Problem problem;
                 JLabel symbolLabel, scoreLabel, timeSolvedLabel;
-                JPanel solvedPanel;
                 
                 ProblemGUIEntity(Problem problem)
                 {                                                
@@ -506,7 +525,7 @@ class ContestWindow extends JFrame
                         JPanel panel = new JPanel();
                         panel.setPreferredSize(new Dimension(950, 75));
                         panel.setLayout(new GridLayout(1, 4));
-                        /* headerPanel begins */
+                        /* panel begins */
                         JLabel label;
                         
                         label = new JLabel("" + newSubmission.submissionID);
@@ -526,7 +545,7 @@ class ContestWindow extends JFrame
                         label = new JLabel(newSubmission.verdict.toString());
                         label.setHorizontalAlignment(JLabel.CENTER);
                         panel.add(label);
-                        /* headerPanel ends */
+                        /* panel ends */
                         
                         if (! contest.problems[newSubmission.problemID].isSolved && newSubmission.verdict == Verdict.AC)
                         {
